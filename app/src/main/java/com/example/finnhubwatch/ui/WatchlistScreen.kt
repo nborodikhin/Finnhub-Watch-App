@@ -155,65 +155,61 @@ private fun WatchlistRow(
     onRemove: (String) -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clickable { menuOpen = true }
-                    .semantics {
-                        contentDescription = "Actions for ${row.symbol}"
-                        role = Role.Button
-                    }.padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(row.symbol, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    row.name,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { menuOpen = true }
+                .semantics {
+                    contentDescription = "Actions for ${row.symbol}"
+                    role = Role.Button
+                }.padding(horizontal = 18.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(row.symbol, style = MaterialTheme.typography.titleMedium)
+            Text(
+                row.name,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Text(
+            row.source.name,
+            style = MaterialTheme.typography.labelSmall,
+            color =
+                if (row.source ==
+                    PriceSource.LIVE
+                ) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(formatPrice(row.price), style = MaterialTheme.typography.titleMedium)
+        Box {
+            IconButton(
+                onClick = { menuOpen = true },
+                modifier =
+                    Modifier.size(28.dp).semantics {
+                        contentDescription =
+                            "More actions for ${row.symbol}"
+                    },
+            ) {
+                Icon(Icons.Default.MoreVert, contentDescription = null, modifier = Modifier.size(18.dp))
+            }
+            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                DropdownMenuItem(
+                    text = { Text("Remove from watchlist") },
+                    onClick = {
+                        menuOpen = false
+                        onRemove(row.symbol)
+                    },
                 )
             }
-            Column(horizontalAlignment = Alignment.End) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        row.source.name,
-                        style = MaterialTheme.typography.labelSmall,
-                        color =
-                            if (row.source ==
-                                PriceSource.LIVE
-                            ) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(formatPrice(row.price), style = MaterialTheme.typography.titleMedium)
-                }
-                IconButton(
-                    onClick = { menuOpen = true },
-                    modifier =
-                        Modifier.size(28.dp).semantics {
-                            contentDescription =
-                                "More actions for ${row.symbol}"
-                        },
-                ) {
-                    Icon(Icons.Default.MoreVert, contentDescription = null, modifier = Modifier.size(18.dp))
-                }
-            }
-        }
-        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-            DropdownMenuItem(
-                text = { Text("Remove from watchlist") },
-                onClick = {
-                    menuOpen = false
-                    onRemove(row.symbol)
-                },
-            )
         }
     }
 }
