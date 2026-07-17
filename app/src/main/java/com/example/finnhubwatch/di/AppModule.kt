@@ -8,6 +8,8 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.room.Room
+import com.example.finnhubwatch.data.FinancialRepository
+import com.example.finnhubwatch.data.InstrumentSearchRepository
 import com.example.finnhubwatch.data.RoomWatchlistRepository
 import com.example.finnhubwatch.data.WatchlistRepository
 import com.example.finnhubwatch.data.local.WatchlistDao
@@ -57,6 +59,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideWatchlistRepository(dao: WatchlistDao): WatchlistRepository = RoomWatchlistRepository(dao)
+
+    @Provides
+    @Singleton
+    fun provideInstrumentSearchRepository(repository: FinancialRepository): InstrumentSearchRepository = repository
 
     @Provides
     @Singleton

@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -37,7 +38,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.finnhubwatch.domain.model.Instrument
 import com.example.finnhubwatch.domain.model.Quote
-import com.example.finnhubwatch.domain.model.SearchResult
 import com.example.finnhubwatch.theme.FinnhubWatchTheme
 
 @Composable
@@ -49,6 +49,7 @@ fun SearchScreen(viewModel: SearchViewModel = hiltViewModel()) {
         onClear = viewModel::clearQuery,
         onToggle = viewModel::toggleMembership,
         onRetry = viewModel::retry,
+        onRetryQuote = viewModel::retryQuote,
     )
 }
 
@@ -59,6 +60,7 @@ internal fun SearchContent(
     onClear: () -> Unit,
     onToggle: (SearchResultUi) -> Unit,
     onRetry: () -> Unit,
+    onRetryQuote: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OutlinedTextField(
@@ -84,7 +86,9 @@ internal fun SearchContent(
             is SearchStatus.Error -> ErrorState(status.code, onRetry)
             SearchStatus.Results ->
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(state.results, key = { it.result.instrument.symbol }) { result -> SearchRow(result, onToggle) }
+                    items(state.results, key = { it.instrument.symbol }) { result ->
+                        SearchRow(result, onToggle, onRetryQuote)
+                    }
                 }
         }
     }
@@ -94,8 +98,9 @@ internal fun SearchContent(
 private fun SearchRow(
     result: SearchResultUi,
     onToggle: (SearchResultUi) -> Unit,
+    onRetryQuote: (String) -> Unit,
 ) {
-    val instrument = result.result.instrument
+    val instrument = result.instrument
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -104,11 +109,32 @@ private fun SearchRow(
             Text(instrument.symbol, style = MaterialTheme.typography.titleMedium)
             Text(instrument.name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Text(formatPrice(result.result.quote?.price), style = MaterialTheme.typography.bodyLarge)
+        Column(horizontalAlignment = Alignment.End) {
+            when (val quoteState = result.quoteState) {
+                SearchQuoteState.Pending -> Text("Loading price", style = MaterialTheme.typography.bodySmall)
+                is SearchQuoteState.Available -> Text(formatPrice(quoteState.quote.price), style = MaterialTheme.typography.bodyLarge)
+                is SearchQuoteState.Unavailable -> Text("Unavailable", style = MaterialTheme.typography.bodySmall)
+                is SearchQuoteState.Retryable -> {
+                    Text("Retryable error", style = MaterialTheme.typography.bodySmall)
+                    TextButton(onClick = { onRetryQuote(instrument.symbol) }) { Text("Retry") }
+                }
+            }
+        }
+        val membershipDescription =
+            when {
+                result.isInWatchlist -> "Remove ${instrument.symbol} from watchlist"
+                result.canAdd -> "Add ${instrument.symbol} to watchlist"
+                result.quoteState is SearchQuoteState.Pending ->
+                    "${instrument.symbol} price loading, cannot add to watchlist"
+                result.quoteState is SearchQuoteState.Retryable ->
+                    "${instrument.symbol} quote retryable, cannot add to watchlist"
+                else -> "${instrument.symbol} unavailable, cannot add to watchlist"
+            }
         Checkbox(
             checked = result.isInWatchlist,
-            onCheckedChange = { onToggle(result) },
-            modifier = Modifier.semantics { contentDescription = "Add ${instrument.symbol} to watchlist" },
+            enabled = result.isInWatchlist || result.canAdd,
+            onCheckedChange = { if (result.isInWatchlist || result.canAdd) onToggle(result) },
+            modifier = Modifier.semantics { contentDescription = membershipDescription },
         )
     }
 }
@@ -143,8 +169,16 @@ private fun SearchPreview() {
             SearchUiState(
                 query = "a",
                 status = SearchStatus.Results,
-                results = listOf(SearchResultUi(SearchResult(Instrument("AAPL", "Apple Inc."), Quote(327.10)), true)),
+                results =
+                    listOf(
+                        SearchResultUi(
+                            Instrument("AAPL", "Apple Inc."),
+                            SearchQuoteState.Available(Quote(327.10)),
+                            true,
+                        ),
+                    ),
             ),
+            {},
             {},
             {},
             {},

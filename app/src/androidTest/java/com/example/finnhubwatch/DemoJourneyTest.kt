@@ -34,6 +34,9 @@ class DemoJourneyTest {
             composeRule.onAllNodesWithText("AAPL").fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithText("Apple Inc.").assertIsDisplayed()
+        composeRule.waitUntil(timeoutMillis = 2_000) {
+            composeRule.onAllNodesWithText("${'$'}327.00").fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule.onNodeWithContentDescription("Add AAPL to watchlist").performClick()
         composeRule.onNodeWithContentDescription("Watchlist tab").performClick()
         composeRule.onNodeWithText("AAPL").assertIsDisplayed()

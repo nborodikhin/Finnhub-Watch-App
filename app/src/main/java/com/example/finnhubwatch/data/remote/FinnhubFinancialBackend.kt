@@ -39,6 +39,7 @@ class FinnhubFinancialBackend
             val response =
                 execute(
                     endpoint("search").newBuilder().addQueryParameter("q", query).build(),
+                    classifyForbiddenAsAuthorization = true,
                 )
             return json.decodeFromString<SearchResponse>(response).result.map { item ->
                 Instrument(item.displaySymbol ?: item.symbol, item.description)
@@ -94,12 +95,14 @@ class FinnhubFinancialBackend
                                                 }
                                             }
                                         }
-                                        "error" ->
+                                        "error" -> {
+                                            val message = root["msg"]?.jsonPrimitive?.content.orEmpty()
                                             trySend(
                                                 BackendEvent.Failed(
-                                                    FinancialException.Authorization(root["msg"]?.jsonPrimitive?.content.orEmpty()),
+                                                    FinancialException.Authorization(message = message),
                                                 ),
                                             )
+                                        }
                                     }
                                 } catch (error: Exception) {
                                     trySend(BackendEvent.Failed(FinancialException.Api("malformed", "Unable to parse stream message")))
@@ -111,9 +114,10 @@ class FinnhubFinancialBackend
                                 t: Throwable,
                                 response: okhttp3.Response?,
                             ) {
+                                val responseCode = response?.code
                                 val exception =
-                                    if (response?.code == 401 || response?.code == 403) {
-                                        FinancialException.Authorization()
+                                    if (responseCode == 401 || responseCode == 403) {
+                                        FinancialException.Authorization(code = responseCode.toString())
                                     } else {
                                         FinancialException.Network(t.message ?: "WebSocket connection failed", t)
                                     }
@@ -136,14 +140,19 @@ class FinnhubFinancialBackend
                 awaitClose { socket.close(1000, "cancelled") }
             }
 
-        private suspend fun execute(url: okhttp3.HttpUrl): String {
+        private suspend fun execute(
+            url: okhttp3.HttpUrl,
+            classifyForbiddenAsAuthorization: Boolean = false,
+        ): String {
             val key = apiKeyStore.apiKey.first()
             val request = Request.Builder().url(url.newBuilder().addQueryParameter("token", key).build()).build()
             return withContext(Dispatchers.IO) {
                 try {
                     client.newCall(request).execute().use { response ->
                         if (!response.isSuccessful) {
-                            if (response.code == 401 || response.code == 403) throw FinancialException.Authorization()
+                            if (response.code == 401 || (response.code == 403 && classifyForbiddenAsAuthorization)) {
+                                throw FinancialException.Authorization(response.code.toString())
+                            }
                             throw FinancialException.Api(response.code.toString(), "Finnhub request failed")
                         }
                         response.body?.string() ?: throw FinancialException.Network("Empty Finnhub response")
