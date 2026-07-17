@@ -51,7 +51,7 @@ class DemoFinancialBackend
                     delay(5_000)
                     values.forEach { (symbol, current) ->
                         val base = basePrices.getValue(symbol)
-                        val next = (current + random.nextDouble(-1_000.0, 1_000.0)).coerceIn(base * 0.9, base * 1.1)
+                        val next = (current + random.nextDouble(-10.0, 10.0)).coerceIn(base * 0.9, base * 1.1)
                         values[symbol] = next
                         emit(BackendEvent.Trade(symbol, next, clock.now()))
                     }
