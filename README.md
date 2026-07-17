@@ -74,7 +74,7 @@ Local tests cover demo search/quotes/stream events, cached/live watchlist mappin
 
 - The initial Room schema uses `fallbackToDestructiveMigration()` as an explicit first-version simplification. Future schema changes should add migrations before shipping persistent data changes.
 - Only the API key is encrypted at rest. The watchlist database is regular Room storage as required by the challenge.
-- Quote retrieval fans out from search results and is intentionally small and simple; Finnhub rate limits are documented rather than hidden.
+- Search results are published before quote hydration completes, then one quote request is issued per returned symbol in sequence. Broad queries can consume Finnhub rate-limit budget and delay which rows become addable. Potential improvements include limiting hydration to visible rows, caching and deduplicating quotes, pacing requests, or using a supported batch endpoint.
 - There is no background streaming, historical chart, price history, account login, or portfolio calculation.
 
 ## Tooling Assistance

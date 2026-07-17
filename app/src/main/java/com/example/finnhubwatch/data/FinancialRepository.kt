@@ -8,8 +8,9 @@ import com.example.finnhubwatch.domain.model.BackendEvent
 import com.example.finnhubwatch.domain.model.BackendMode
 import com.example.finnhubwatch.domain.model.ConnectionStatus
 import com.example.finnhubwatch.domain.model.FinancialException
+import com.example.finnhubwatch.domain.model.Instrument
 import com.example.finnhubwatch.domain.model.LivePrice
-import com.example.finnhubwatch.domain.model.SearchResult
+import com.example.finnhubwatch.domain.model.Quote
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -36,7 +37,7 @@ class FinancialRepository
         private val demoBackend: DemoFinancialBackend,
         private val realBackend: FinnhubFinancialBackend,
         private val foregroundMonitor: ForegroundMonitor,
-    ) {
+    ) : InstrumentSearchRepository {
         private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         private val _livePrices = MutableStateFlow<Map<String, LivePrice>>(emptyMap())
         private val _connection = MutableStateFlow<ConnectionStatus>(ConnectionStatus.Inactive)
@@ -65,22 +66,22 @@ class FinancialRepository
             }
         }
 
-        suspend fun search(query: String): Result<List<SearchResult>> =
+        override suspend fun search(query: String): Result<List<Instrument>> =
             try {
                 val backend = activeBackend()
-                val instruments = backend.search(query)
-                Result.success(
-                    instruments.map { instrument ->
-                        val quote =
-                            try {
-                                backend.quote(instrument.symbol)
-                            } catch (exception: FinancialException) {
-                                if (exception.unauthorized) throw exception
-                                null
-                            }
-                        SearchResult(instrument, quote)
-                    },
-                )
+                Result.success(backend.search(query))
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: FinancialException) {
+                if (exception.unauthorized) _connection.value = ConnectionStatus.Unauthorized
+                Result.failure(exception)
+            } catch (exception: Exception) {
+                Result.failure(exception)
+            }
+
+        override suspend fun quote(symbol: String): Result<Quote?> =
+            try {
+                Result.success(activeBackend().quote(symbol))
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: FinancialException) {
@@ -164,3 +165,9 @@ class FinancialRepository
             val RETRY_DELAYS_SECONDS = intArrayOf(1, 2, 4, 8)
         }
     }
+
+interface InstrumentSearchRepository {
+    suspend fun search(query: String): Result<List<Instrument>>
+
+    suspend fun quote(symbol: String): Result<Quote?>
+}

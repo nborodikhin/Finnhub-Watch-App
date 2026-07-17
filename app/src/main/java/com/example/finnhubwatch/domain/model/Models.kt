@@ -57,22 +57,29 @@ sealed class FinancialException(
     message: String,
     val code: String,
     val unauthorized: Boolean = false,
+    val retryable: Boolean = false,
     cause: Throwable? = null,
 ) : Exception(message, cause) {
     class Api(
         code: String,
         message: String,
-    ) : FinancialException(message, code)
+    ) : FinancialException(message, code, retryable = code.isRetryableHttpCode())
 
     class Network(
         message: String,
         cause: Throwable? = null,
-    ) : FinancialException(message, "network", cause = cause)
+    ) : FinancialException(message, "network", retryable = true, cause = cause)
 
     class Authorization(
+        code: String = "401",
         message: String = "API key was rejected",
-    ) : FinancialException(message, "401", true)
+    ) : FinancialException(message, code, unauthorized = true)
 }
+
+private fun String.isRetryableHttpCode(): Boolean =
+    toIntOrNull()?.let { code ->
+        code == 408 || code == 429 || code >= 500
+    } == true
 
 sealed interface BackendEvent {
     data object Connected : BackendEvent
