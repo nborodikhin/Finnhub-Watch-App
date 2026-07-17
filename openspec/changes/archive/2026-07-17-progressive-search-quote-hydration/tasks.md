@@ -30,4 +30,4 @@
 ## 5. Landing
 
 - [x] 5.1 Implementation Gate - commit the implementation (do not ask), then run `plannotator review`. Annotations are instructions, not suggestions: carry out every one (say so briefly if you disagree, then do it anyway), and sync the specs yourself if the code now does something they do not describe. Re-review until the human approves. Tick ONLY once they have.
-- [ ] 5.2 Land - invoke the `openspec-archive-guard` skill, then archive the change and commit. If the repo has a GitHub remote, push the branch and give the human a compare link to open the PR themselves (do not create it); if it is local-only, tell the human it is landed and theirs to merge or squash back into the base branch (see spec-review.md).
+- [x] 5.2 Land - invoke the `openspec-archive-guard` skill, then archive the change and commit. If the repo has a GitHub remote, push the branch and give the human a compare link to open the PR themselves (do not create it); if it is local-only, tell the human it is landed and theirs to merge or squash back into the base branch (see spec-review.md).
