@@ -1,8 +1,9 @@
 package com.example.finnhubwatch.data
 
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,12 +13,16 @@ import javax.inject.Singleton
 @Singleton
 class ForegroundMonitor
     @Inject
-    constructor() : DefaultLifecycleObserver {
+    constructor(
+        private val lifecycleOwner: LifecycleOwner,
+    ) : DefaultLifecycleObserver {
         private val _isForeground = MutableStateFlow(false)
         val isForeground: StateFlow<Boolean> = _isForeground.asStateFlow()
 
         init {
-            ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+            Handler(Looper.getMainLooper()).post {
+                lifecycleOwner.lifecycle.addObserver(this)
+            }
         }
 
         override fun onStart(owner: LifecycleOwner) {

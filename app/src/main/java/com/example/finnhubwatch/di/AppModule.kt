@@ -5,6 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.room.Room
 import com.example.finnhubwatch.data.RoomWatchlistRepository
 import com.example.finnhubwatch.data.WatchlistRepository
@@ -46,7 +48,7 @@ object AppModule {
     ): WatchlistDatabase =
         Room
             .databaseBuilder(context, WatchlistDatabase::class.java, "watchlist.db")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(true)
             .build()
 
     @Provides
@@ -67,8 +69,12 @@ object AppModule {
     fun provideApiKeyStore(dataStore: DataStore<Preferences>): ApiKeyStore = EncryptedApiKeyStore(dataStore)
 
     @Provides
-    fun provideDemoRandom(): DemoRandom = DemoRandom { from, until -> Random.Default.nextDouble(from, until) }
+    fun provideDemoRandom(): DemoRandom = DemoRandom { from, until -> Random.nextDouble(from, until) }
 
     @Provides
     fun provideDemoClock(): DemoClock = DemoClock { System.currentTimeMillis() }
+
+    @Provides
+    @Singleton
+    fun provideProcessLifecycleOwner(): LifecycleOwner = ProcessLifecycleOwner.get()
 }
