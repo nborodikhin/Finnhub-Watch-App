@@ -2,6 +2,8 @@
 
 Finnhub Watch is a small Kotlin/Jetpack Compose app for searching instruments, persisting a watchlist, and displaying cached and live prices.
 
+https://github.com/user-attachments/assets/22f997c7-5432-4cbc-aadd-81e335d6ff47
+
 ## Run
 
 Requirements:
