@@ -17,6 +17,12 @@ Build and install the debug app:
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
+GitHub actions are set to run on every commit to main to automatically build the debug apk:
+- Go to the Actions tab: https://github.com/nborodikhin/Finnhub-Watch-App/actions
+- Click the most recent run of "Build Debug APK" (should be from the workflow push, or triggered by your recent commits).
+- Scroll to the bottom of the run summary page — under Artifacts, you'll see debug-apk.
+- Click it to download a zip containing app-debug.apk.
+
 The application id is `com.example.finnhubwatch`.
 
 ## Demo Mode
@@ -78,6 +84,11 @@ Local tests cover demo search/quotes/stream events, cached/live watchlist mappin
 - There is no background streaming, historical chart, price history, account login, or portfolio calculation.
 
 ## Tooling Assistance
+
+Built from:
+- the original assignment description: [assignment.md](assignment.md)
+- manually crafted description of UI and architecture: [implementation_requirements.md](implementation_requirements.md)
+- mock design: [design folder](design/)
 
 UI design - Claude Design
 Coding agent - OpenCode running GPT-5.6
