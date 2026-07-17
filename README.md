@@ -79,4 +79,6 @@ Local tests cover demo search/quotes/stream events, cached/live watchlist mappin
 
 ## Tooling Assistance
 
-OpenCode was used to inspect the assignment/design, query Android documentation through the Android CLI, scaffold the Android project, implement the code and tests, run Gradle checks, and run the instrumentation journey on a connected Pixel 6a device.
+UI design - Claude Design
+Coding agent - OpenCode running GPT-5.6
+android CLI tools
