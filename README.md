@@ -37,6 +37,8 @@ Search and quote values are fixed. Watched instruments receive simulated updates
 
 With a non-empty API key, search and quote requests use Finnhub REST APIs and watched symbols use the Finnhub WebSocket trade stream. The key is encrypted with an AES-GCM key held by Android Keystore; DataStore contains only the encrypted payload.
 
+Prices use Kotlin `Double` throughout the domain and data layers because Finnhub exposes quote and trade prices as numeric JSON values. Formatting to currency text happens only in the Compose UI.
+
 The free Finnhub plan may have rate limits, delayed or unavailable market data, symbol coverage differences, and WebSocket restrictions. The app surfaces API error codes, authorization errors, missing prices, reconnecting, and exhausted retry states. Demo mode is the reliable way to review the core flow outside market hours or without a valid key.
 
 ## Architecture
