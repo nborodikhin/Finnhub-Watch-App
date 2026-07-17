@@ -110,11 +110,13 @@ fun WatchlistAppScaffold(
                     Tab(
                         selected = !isSearch,
                         onClick = { onRouteSelected(WatchlistRoute) },
+                        modifier = Modifier.semantics { contentDescription = "Watchlist tab" },
                         text = { Text("Watchlist") },
                     )
                     Tab(
                         selected = isSearch,
                         onClick = { onRouteSelected(SearchRoute) },
+                        modifier = Modifier.semantics { contentDescription = "Search tab" },
                         text = { Text("Search") },
                     )
                 }

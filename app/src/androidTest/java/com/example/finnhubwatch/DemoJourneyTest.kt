@@ -20,14 +20,22 @@ class DemoJourneyTest {
 
     @Test
     fun searchAddAndRestoreCachedWatchlistItem() {
-        composeRule.onNodeWithText("Search").performClick()
+        composeRule.onNodeWithContentDescription("Watchlist tab").performClick()
+        listOf("DOCS", "NVDA", "AAPL", "AMZN", "MSFT").forEach { symbol ->
+            if (composeRule.onAllNodesWithText(symbol).fetchSemanticsNodes().isNotEmpty()) {
+                composeRule.onNodeWithText(symbol).performClick()
+                composeRule.onNodeWithText("Remove from watchlist").performClick()
+            }
+        }
+        composeRule.onNodeWithText("No results").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Search tab").performClick()
         composeRule.onNode(hasSetTextAction()).performTextInput("aapl")
         composeRule.waitUntil(timeoutMillis = 2_000) {
             composeRule.onAllNodesWithText("AAPL").fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithText("Apple Inc.").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Add AAPL to watchlist").performClick()
-        composeRule.onNodeWithText("Watchlist").performClick()
+        composeRule.onNodeWithContentDescription("Watchlist tab").performClick()
         composeRule.onNodeWithText("AAPL").assertIsDisplayed()
         composeRule.onNodeWithText("CACHED").assertIsDisplayed()
     }
