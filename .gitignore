@@ -1,2 +1,13 @@
-/.*
-/.*/
+*.iml
+.gradle
+.idea
+/build
+/captures
+/app/build
+/local.properties
+.externalNativeBuild
+.cxx
+.claude_tmp
+.agents
+.claude
+.opencode
