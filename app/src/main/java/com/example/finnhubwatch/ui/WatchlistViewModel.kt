@@ -7,6 +7,7 @@ import com.example.finnhubwatch.data.WatchlistRepository
 import com.example.finnhubwatch.domain.model.LivePrice
 import com.example.finnhubwatch.domain.model.PriceSource
 import com.example.finnhubwatch.domain.model.WatchlistItem
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 enum class WatchlistSort {
     SYMBOL,
@@ -36,49 +38,52 @@ data class WatchlistUiState(
     val isLoading: Boolean = true,
 )
 
-class WatchlistViewModel(
-    private val watchlistRepository: WatchlistRepository,
-    financialRepository: FinancialRepository,
-) : ViewModel() {
-    private val filter = MutableStateFlow("")
-    private val sort = MutableStateFlow(WatchlistSort.SYMBOL)
-    private val ascending = MutableStateFlow(true)
+@HiltViewModel
+class WatchlistViewModel
+    @Inject
+    constructor(
+        private val watchlistRepository: WatchlistRepository,
+        financialRepository: FinancialRepository,
+    ) : ViewModel() {
+        private val filter = MutableStateFlow("")
+        private val sort = MutableStateFlow(WatchlistSort.SYMBOL)
+        private val ascending = MutableStateFlow(true)
 
-    val uiState: StateFlow<WatchlistUiState> =
-        combine(
-            watchlistRepository.items,
-            financialRepository.livePrices,
-            filter,
-            sort,
-            ascending,
-        ) { items, livePrices, filterText, sortField, isAscending ->
-            val ordered = buildWatchlistRows(items, livePrices, filterText, sortField, isAscending)
-            WatchlistUiState(
-                filter = filterText,
-                sort = sortField,
-                ascending = isAscending,
-                rows = ordered,
-                isLoading = false,
-            )
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), WatchlistUiState())
+        val uiState: StateFlow<WatchlistUiState> =
+            combine(
+                watchlistRepository.items,
+                financialRepository.livePrices,
+                filter,
+                sort,
+                ascending,
+            ) { items, livePrices, filterText, sortField, isAscending ->
+                val ordered = buildWatchlistRows(items, livePrices, filterText, sortField, isAscending)
+                WatchlistUiState(
+                    filter = filterText,
+                    sort = sortField,
+                    ascending = isAscending,
+                    rows = ordered,
+                    isLoading = false,
+                )
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), WatchlistUiState())
 
-    fun setFilter(value: String) {
-        filter.value = value
-    }
+        fun setFilter(value: String) {
+            filter.value = value
+        }
 
-    fun selectSort(value: WatchlistSort) {
-        if (sort.value == value) {
-            ascending.value = !ascending.value
-        } else {
-            sort.value = value
-            ascending.value = true
+        fun selectSort(value: WatchlistSort) {
+            if (sort.value == value) {
+                ascending.value = !ascending.value
+            } else {
+                sort.value = value
+                ascending.value = true
+            }
+        }
+
+        fun remove(symbol: String) {
+            viewModelScope.launch { watchlistRepository.remove(symbol) }
         }
     }
-
-    fun remove(symbol: String) {
-        viewModelScope.launch { watchlistRepository.remove(symbol) }
-    }
-}
 
 internal fun buildWatchlistRows(
     items: List<WatchlistItem>,

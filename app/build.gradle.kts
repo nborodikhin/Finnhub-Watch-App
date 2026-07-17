@@ -69,6 +69,7 @@ dependencies {
 
     // Dependency injection
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     kapt(libs.hilt.compiler)
 
     // Persistence and settings
