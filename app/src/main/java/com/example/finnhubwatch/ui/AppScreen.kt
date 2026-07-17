@@ -66,12 +66,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import com.example.finnhubwatch.SearchRoute
 import com.example.finnhubwatch.WatchlistRoute
-import com.example.finnhubwatch.data.model.BackendMode
-import com.example.finnhubwatch.data.model.ConnectionStatus
-import com.example.finnhubwatch.data.model.Instrument
-import com.example.finnhubwatch.data.model.PriceSource
-import com.example.finnhubwatch.data.model.Quote
-import com.example.finnhubwatch.data.model.SearchResult
+import com.example.finnhubwatch.domain.model.BackendMode
+import com.example.finnhubwatch.domain.model.ConnectionStatus
+import com.example.finnhubwatch.domain.model.Instrument
+import com.example.finnhubwatch.domain.model.PriceSource
+import com.example.finnhubwatch.domain.model.Quote
+import com.example.finnhubwatch.domain.model.SearchResult
 import com.example.finnhubwatch.theme.FinnhubWatchTheme
 import java.util.Locale
 

@@ -1,7 +1,7 @@
 package com.example.finnhubwatch.data.remote
 
 import app.cash.turbine.test
-import com.example.finnhubwatch.data.model.BackendEvent
+import com.example.finnhubwatch.domain.model.BackendEvent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

@@ -1,15 +1,15 @@
 package com.example.finnhubwatch.data
 
-import com.example.finnhubwatch.data.model.BackendEvent
-import com.example.finnhubwatch.data.model.BackendMode
-import com.example.finnhubwatch.data.model.ConnectionStatus
-import com.example.finnhubwatch.data.model.FinancialException
-import com.example.finnhubwatch.data.model.LivePrice
-import com.example.finnhubwatch.data.model.SearchResult
 import com.example.finnhubwatch.data.remote.DemoFinancialBackend
 import com.example.finnhubwatch.data.remote.FinancialBackend
 import com.example.finnhubwatch.data.remote.FinnhubFinancialBackend
 import com.example.finnhubwatch.data.settings.ApiKeyStore
+import com.example.finnhubwatch.domain.model.BackendEvent
+import com.example.finnhubwatch.domain.model.BackendMode
+import com.example.finnhubwatch.domain.model.ConnectionStatus
+import com.example.finnhubwatch.domain.model.FinancialException
+import com.example.finnhubwatch.domain.model.LivePrice
+import com.example.finnhubwatch.domain.model.SearchResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -66,19 +66,28 @@ class FinancialRepository
         }
 
         suspend fun search(query: String): Result<List<SearchResult>> =
-            runCatching {
+            try {
                 val backend = activeBackend()
                 val instruments = backend.search(query)
-                instruments.map { instrument ->
-                    val quote =
-                        try {
-                            backend.quote(instrument.symbol)
-                        } catch (exception: FinancialException) {
-                            if (exception.unauthorized) throw exception
-                            null
-                        }
-                    SearchResult(instrument, quote)
-                }
+                Result.success(
+                    instruments.map { instrument ->
+                        val quote =
+                            try {
+                                backend.quote(instrument.symbol)
+                            } catch (exception: FinancialException) {
+                                if (exception.unauthorized) throw exception
+                                null
+                            }
+                        SearchResult(instrument, quote)
+                    },
+                )
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: FinancialException) {
+                if (exception.unauthorized) _connection.value = ConnectionStatus.Unauthorized
+                Result.failure(exception)
+            } catch (exception: Exception) {
+                Result.failure(exception)
             }
 
         fun reconnect() {

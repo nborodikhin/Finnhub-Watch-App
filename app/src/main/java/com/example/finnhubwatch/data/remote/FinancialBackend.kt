@@ -1,9 +1,9 @@
 package com.example.finnhubwatch.data.remote
 
-import com.example.finnhubwatch.data.model.BackendEvent
-import com.example.finnhubwatch.data.model.BackendMode
-import com.example.finnhubwatch.data.model.Instrument
-import com.example.finnhubwatch.data.model.Quote
+import com.example.finnhubwatch.domain.model.BackendEvent
+import com.example.finnhubwatch.domain.model.BackendMode
+import com.example.finnhubwatch.domain.model.Instrument
+import com.example.finnhubwatch.domain.model.Quote
 import kotlinx.coroutines.flow.Flow
 
 interface FinancialBackend {

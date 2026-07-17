@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.finnhubwatch.data.FinancialRepository
 import com.example.finnhubwatch.data.WatchlistRepository
-import com.example.finnhubwatch.data.model.LivePrice
-import com.example.finnhubwatch.data.model.PriceSource
-import com.example.finnhubwatch.data.model.WatchlistItem
+import com.example.finnhubwatch.domain.model.LivePrice
+import com.example.finnhubwatch.domain.model.PriceSource
+import com.example.finnhubwatch.domain.model.WatchlistItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

@@ -3,9 +3,9 @@ package com.example.finnhubwatch.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.finnhubwatch.data.FinancialRepository
-import com.example.finnhubwatch.data.model.BackendMode
-import com.example.finnhubwatch.data.model.ConnectionStatus
 import com.example.finnhubwatch.data.settings.ApiKeyStore
+import com.example.finnhubwatch.domain.model.BackendMode
+import com.example.finnhubwatch.domain.model.ConnectionStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

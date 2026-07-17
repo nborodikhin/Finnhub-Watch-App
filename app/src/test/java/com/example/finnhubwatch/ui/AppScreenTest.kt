@@ -4,9 +4,9 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.finnhubwatch.data.model.Instrument
-import com.example.finnhubwatch.data.model.Quote
-import com.example.finnhubwatch.data.model.SearchResult
+import com.example.finnhubwatch.domain.model.Instrument
+import com.example.finnhubwatch.domain.model.Quote
+import com.example.finnhubwatch.domain.model.SearchResult
 import com.example.finnhubwatch.theme.FinnhubWatchTheme
 import org.junit.Rule
 import org.junit.Test

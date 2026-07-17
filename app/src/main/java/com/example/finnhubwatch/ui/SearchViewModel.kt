@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.finnhubwatch.data.FinancialRepository
 import com.example.finnhubwatch.data.WatchlistRepository
-import com.example.finnhubwatch.data.model.FinancialException
-import com.example.finnhubwatch.data.model.SearchResult
+import com.example.finnhubwatch.domain.model.FinancialException
+import com.example.finnhubwatch.domain.model.SearchResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

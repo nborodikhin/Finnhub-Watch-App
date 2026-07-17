@@ -1,4 +1,4 @@
-package com.example.finnhubwatch.data.model
+package com.example.finnhubwatch.domain.model
 
 data class Instrument(
     val symbol: String,

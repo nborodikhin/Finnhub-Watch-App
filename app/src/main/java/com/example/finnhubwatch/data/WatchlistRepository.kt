@@ -2,8 +2,8 @@ package com.example.finnhubwatch.data
 
 import com.example.finnhubwatch.data.local.WatchlistDao
 import com.example.finnhubwatch.data.local.WatchlistEntity
-import com.example.finnhubwatch.data.model.Instrument
-import com.example.finnhubwatch.data.model.WatchlistItem
+import com.example.finnhubwatch.domain.model.Instrument
+import com.example.finnhubwatch.domain.model.WatchlistItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

@@ -1,9 +1,9 @@
 package com.example.finnhubwatch.ui
 
-import com.example.finnhubwatch.data.model.Instrument
-import com.example.finnhubwatch.data.model.LivePrice
-import com.example.finnhubwatch.data.model.PriceSource
-import com.example.finnhubwatch.data.model.WatchlistItem
+import com.example.finnhubwatch.domain.model.Instrument
+import com.example.finnhubwatch.domain.model.LivePrice
+import com.example.finnhubwatch.domain.model.PriceSource
+import com.example.finnhubwatch.domain.model.WatchlistItem
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
