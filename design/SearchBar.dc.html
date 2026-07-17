@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+</helmet>
+<div style="{{ barStyle }}">
+  <div style="{{ inputStyle }}">
+    <span style="{{ iconStyle }}">search</span>
+    <span style="{{ queryStyle }}">{{ queryText }}</span>
+    <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ true }}"><span style="{{ clearStyle }}">close</span></sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:360,&quot;height&quot;:68},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;query&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;a&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  pal(t) {
+    if (t === 'dark') return { surface:'#1D1F23', surfaceHi:'#25272B', onBg:'#E3E2E6', onVar:'#9BA1AB', outlineFaint:'#2A2C30' };
+    return { surface:'#FFFFFF', surfaceHi:'#EEF1F6', onBg:'#1A1C1E', onVar:'#5A5E66', outlineFaint:'#E9ECF1' };
+  }
+  renderVals() {
+    const p = this.pal(this.props.theme);
+    const q = this.props.query || '';
+    const hasQuery = q.length > 0;
+    const ico = `font-family:'Material Symbols Outlined';line-height:1;`;
+    return {
+      queryText: hasQuery ? q : 'Search stocks, crypto, forex', hasQuery,
+      barStyle: `display:flex;align-items:center;padding:12px;background:${p.surface};border-bottom:1px solid ${p.outlineFaint};`,
+      inputStyle: `flex:1;display:flex;align-items:center;gap:10px;background:${p.surfaceHi};border-radius:26px;padding:12px 16px;min-width:0;`,
+      iconStyle: `${ico}font-size:20px;color:${p.onVar};`,
+      queryStyle: `flex:1;font:400 15px Roboto,sans-serif;color:${hasQuery ? p.onBg : p.onVar};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`,
+      clearStyle: `${ico}font-size:20px;color:${p.onVar};cursor:pointer;`
+    };
+  }
+}
+</script>
+</body>
+</html>

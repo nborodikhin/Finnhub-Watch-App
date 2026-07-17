@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+</helmet>
+<div style="{{ rowStyle }}">
+  <div style="{{ leftCol }}">
+    <div style="{{ symStyle }}">{{ symbol }}</div>
+    <div style="{{ nameStyle }}">{{ name }}</div>
+  </div>
+  <div style="{{ rightCol }}">
+    <div style="{{ priceStyle }}">{{ price }}</div>
+    <div style="{{ boxStyle }}"><span style="{{ checkStyle }}">check</span></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:360,&quot;height&quot;:66},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;symbol&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;AAPL&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;name&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Apple Inc.&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;price&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;$327.10&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;checked&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  pal(t) {
+    if (t === 'dark') return { surface:'#1D1F23', onBg:'#E3E2E6', onVar:'#9BA1AB', outlineFaint:'#2A2C30', outline:'#585C63', primary:'#A8C7FA', onPrimary:'#0A305F' };
+    return { surface:'#FFFFFF', onBg:'#1A1C1E', onVar:'#5A5E66', outlineFaint:'#E9ECF1', outline:'#A9AEB7', primary:'#0B57D0', onPrimary:'#FFFFFF' };
+  }
+  renderVals() {
+    const p = this.pal(this.props.theme);
+    const checked = this.props.checked === true || this.props.checked === 'true';
+    const box = checked
+      ? `width:20px;height:20px;border-radius:4px;background:${p.primary};display:flex;align-items:center;justify-content:center;flex:0 0 auto;`
+      : `width:20px;height:20px;border-radius:4px;border:2px solid ${p.outline};background:transparent;flex:0 0 auto;box-sizing:border-box;`;
+    return {
+      symbol: this.props.symbol, name: this.props.name, price: this.props.price,
+      rowStyle: `display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid ${p.outlineFaint};background:${p.surface};`,
+      leftCol: `display:flex;flex-direction:column;gap:2px;`,
+      symStyle: `font:500 16px Roboto,sans-serif;color:${p.onBg};letter-spacing:.3px;`,
+      nameStyle: `font:400 13px Roboto,sans-serif;color:${p.onVar};`,
+      rightCol: `display:flex;flex-direction:row;align-items:center;gap:16px;`,
+      priceStyle: `font:500 15px 'Roboto Mono',monospace;color:${p.onBg};`,
+      boxStyle: box,
+      checkStyle: `font-family:'Material Symbols Outlined';font-size:15px;line-height:1;color:${p.onPrimary};display:${checked ? 'inline-block' : 'none'};`
+    };
+  }
+}
+</script>
+</body>
+</html>

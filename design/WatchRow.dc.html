@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</helmet>
+<div style="{{ rowStyle }}">
+  <div style="{{ leftCol }}">
+    <div style="{{ symStyle }}">{{ symbol }}</div>
+    <div style="{{ nameStyle }}">{{ name }}</div>
+  </div>
+  <div style="{{ rightCol }}">
+    <div style="{{ priceLine }}">
+      <span style="{{ tagStyle }}">{{ tag }}</span>
+      <span style="{{ priceStyle }}">{{ price }}</span>
+    </div>
+    <div style="{{ changeStyle }}">{{ arrowChar }} {{ change }}</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:360,&quot;height&quot;:66},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;symbol&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;DOCS&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;name&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Doximity Inc.&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;price&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;$231.42&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tag&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;LIVE&quot;,&quot;CACHED&quot;],&quot;default&quot;:&quot;LIVE&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;change&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;0.62%&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dir&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;up&quot;,&quot;down&quot;,&quot;flat&quot;],&quot;default&quot;:&quot;up&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  pal(t) {
+    if (t === 'dark') return { bg:'#121316', surface:'#1D1F23', onBg:'#E3E2E6', onVar:'#9BA1AB', outlineFaint:'#2A2C30', up:'#7BE0A0', down:'#F2B8B5' };
+    return { bg:'#F7F9FC', surface:'#FFFFFF', onBg:'#1A1C1E', onVar:'#5A5E66', outlineFaint:'#E9ECF1', up:'#1E8E3E', down:'#D93025' };
+  }
+  renderVals() {
+    const p = this.pal(this.props.theme);
+    const dir = this.props.dir || 'flat';
+    const cc = dir === 'up' ? p.up : dir === 'down' ? p.down : p.onVar;
+    const arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '–';
+    const tag = this.props.tag || 'CACHED';
+    const tagColor = tag === 'LIVE' ? p.up : p.onVar;
+    return {
+      symbol: this.props.symbol, name: this.props.name, price: this.props.price,
+      tag, change: this.props.change, arrowChar: arrow,
+      rowStyle: `display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid ${p.outlineFaint};background:${p.surface};`,
+      leftCol: `display:flex;flex-direction:column;gap:2px;`,
+      symStyle: `font:500 16px Roboto,sans-serif;color:${p.onBg};letter-spacing:.3px;`,
+      nameStyle: `font:400 13px Roboto,sans-serif;color:${p.onVar};`,
+      rightCol: `display:flex;flex-direction:column;align-items:flex-end;gap:3px;`,
+      priceLine: `display:flex;align-items:baseline;gap:8px;`,
+      tagStyle: `font:600 10px 'Roboto Mono',monospace;letter-spacing:1px;color:${tagColor};`,
+      priceStyle: `font:500 16px 'Roboto Mono',monospace;color:${p.onBg};`,
+      changeStyle: `font:500 12px 'Roboto Mono',monospace;color:${cc};`
+    };
+  }
+}
+</script>
+</body>
+</html>

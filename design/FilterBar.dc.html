@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+</helmet>
+<div style="{{ barStyle }}">
+  <div style="{{ inputStyle }}">
+    <span style="{{ iconStyle }}">filter_list</span>
+    <span style="{{ queryStyle }}">{{ queryText }}</span>
+    <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ true }}"><span style="{{ clearStyle }}">close</span></sc-if>
+  </div>
+  <div style="{{ sortWrapStyle }}">
+    <div style="{{ symChipStyle }}"><span>Symbol</span><sc-if value="{{ symActive }}" hint-placeholder-val="{{ true }}"><span style="{{ arrowStyle }}">{{ arrowIcon }}</span></sc-if></div>
+    <div style="{{ priceChipStyle }}"><span>Price</span><sc-if value="{{ priceActive }}" hint-placeholder-val="{{ true }}"><span style="{{ arrowStyle }}">{{ arrowIcon }}</span></sc-if></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:360,&quot;height&quot;:58},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;query&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;sort&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;symbol&quot;,&quot;price&quot;],&quot;default&quot;:&quot;symbol&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dir&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;up&quot;,&quot;down&quot;],&quot;default&quot;:&quot;up&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  pal(t) {
+    if (t === 'dark') return { surface:'#1D1F23', surfaceHi:'#25272B', onBg:'#E3E2E6', onVar:'#9BA1AB', outlineFaint:'#2A2C30', primary:'#A8C7FA' };
+    return { surface:'#FFFFFF', surfaceHi:'#EEF1F6', onBg:'#1A1C1E', onVar:'#5A5E66', outlineFaint:'#E9ECF1', primary:'#0B57D0' };
+  }
+  renderVals() {
+    const p = this.pal(this.props.theme);
+    const q = this.props.query || '';
+    const hasQuery = q.length > 0;
+    const sort = this.props.sort || 'symbol';
+    const dir = this.props.dir || 'up';
+    const ico = `font-family:'Material Symbols Outlined';line-height:1;`;
+    const chipBase = `display:flex;align-items:center;gap:2px;padding:6px 10px;border-radius:20px;font:600 13px Roboto,sans-serif;cursor:pointer;`;
+    const active = `${chipBase}color:${p.primary};background:${p.surfaceHi};`;
+    const idle = `${chipBase}color:${p.onVar};font-weight:500;background:transparent;`;
+    return {
+      queryText: hasQuery ? q : 'Filter', hasQuery,
+      symActive: sort === 'symbol', priceActive: sort === 'price',
+      arrowIcon: dir === 'up' ? 'arrow_upward' : 'arrow_downward',
+      barStyle: `display:flex;align-items:center;gap:8px;padding:10px 12px;background:${p.surface};border-bottom:1px solid ${p.outlineFaint};`,
+      inputStyle: `flex:1;display:flex;align-items:center;gap:8px;background:${p.surfaceHi};border-radius:22px;padding:9px 14px;min-width:0;`,
+      iconStyle: `${ico}font-size:18px;color:${p.onVar};`,
+      queryStyle: `flex:1;font:400 14px Roboto,sans-serif;color:${hasQuery ? p.onBg : p.onVar};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`,
+      clearStyle: `${ico}font-size:18px;color:${p.onVar};cursor:pointer;`,
+      sortWrapStyle: `display:flex;align-items:center;gap:2px;`,
+      symChipStyle: sort === 'symbol' ? active : idle,
+      priceChipStyle: sort === 'price' ? active : idle,
+      arrowStyle: `${ico}font-size:15px;`
+    };
+  }
+}
+</script>
+</body>
+</html>

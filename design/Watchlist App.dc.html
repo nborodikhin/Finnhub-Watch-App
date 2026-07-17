@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+body { margin: 0; }
+a { color: #0B57D0; }
+a:hover { color: #094ab0; }
+</style>
+</helmet>
+<div style="min-width:max-content;padding:56px 64px 80px;background:#E9ECF1;font-family:Roboto,sans-serif;display:flex;flex-direction:column;gap:8px;">
+  <div style="font:700 30px Roboto,sans-serif;color:#1A1C1E;letter-spacing:-.2px;">Real-Time Watchlist — Android</div>
+  <div style="font:400 15px Roboto,sans-serif;color:#5A5E66;margin-bottom:36px;">Material 3 · Jetpack Compose · two-tab app with live WebSocket price streaming. Every screen &amp; state.</div>
+
+  <div style="font:600 13px 'Roboto Mono',monospace;letter-spacing:2px;color:#7A828C;margin:8px 0 22px;">LIGHT THEME</div>
+  <div style="display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start;margin-bottom:56px;">
+
+    <dc-import name="Phone" theme="light" tab="watchlist" banner="none" title="Watchlist" label="Watchlist · live · connected" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="light" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ liveRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="WatchRow" theme="light" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="LIVE" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="watchlist" banner="connecting" title="Watchlist" label="Reconnecting · prices fall back to CACHED" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="light" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ cachedRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="WatchRow" theme="light" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="CACHED" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="watchlist" banner="reconnect" title="Watchlist" label="Disconnected · tap banner to reconnect" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="light" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ cachedRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="WatchRow" theme="light" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="CACHED" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="watchlist" banner="demo" title="Watchlist" label="Demo mode · simulated live stream" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="light" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ liveRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="WatchRow" theme="light" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="LIVE" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="watchlist" banner="error" title="Watchlist" label="Auth error propagated to banner" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="light" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ cachedRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="WatchRow" theme="light" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="CACHED" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="watchlist" banner="none" title="Watchlist" label="Filter active · sorted by Price ↓" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="light" query="A" sort="price" dir="down" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ filteredRows }}" as="r" hint-placeholder-count="3">
+        <dc-import name="WatchRow" theme="light" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="LIVE" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="watchlist" banner="none" title="Watchlist" label="Empty state" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="light" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px;">
+        <span style="font-family:'Material Symbols Outlined';font-size:44px;color:#C4C7CF;">bookmark_border</span>
+        <div style="font:500 16px Roboto,sans-serif;color:#5A5E66;">No results</div>
+        <div style="font:400 13px Roboto,sans-serif;color:#8A9099;text-align:center;">Add instruments from the Search tab.</div>
+      </div>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="watchlist" banner="none" title="Watchlist" label="Loading state" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="light" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div style="width:38px;height:38px;border:3px solid #E9ECF1;border-top-color:#0B57D0;border-radius:50%;animation:spin .9s linear infinite;"></div>
+      </div>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="search" banner="none" title="Search" label="Search results · checkbox to add/remove" hint-size="360px,840px">
+      <dc-import name="SearchBar" theme="light" query="a" hint-size="100%,68px"></dc-import>
+      <sc-for list="{{ searchRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="SearchRow" theme="light" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" checked="{{ r.checked }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="search" banner="none" title="Search" label="Search · empty state" hint-size="360px,840px">
+      <dc-import name="SearchBar" theme="light" query="zzzz" hint-size="100%,68px"></dc-import>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div style="font:500 16px Roboto,sans-serif;color:#5A5E66;">No results</div>
+      </div>
+    </dc-import>
+
+    <dc-import name="Phone" theme="light" tab="search" banner="none" title="Search" label="Search · API error + retry" hint-size="360px,840px">
+      <dc-import name="SearchBar" theme="light" query="aapl" hint-size="100%,68px"></dc-import>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;">
+        <span style="font-family:'Material Symbols Outlined';font-size:40px;color:#B3261E;">cloud_off</span>
+        <div style="font:500 16px Roboto,sans-serif;color:#1A1C1E;">API Error: 429</div>
+        <div style="font:400 13px Roboto,sans-serif;color:#8A9099;text-align:center;">Rate limit reached. Try again shortly.</div>
+        <div style="display:flex;align-items:center;gap:8px;border:1px solid #D6DAE1;border-radius:20px;padding:9px 18px;font:500 14px Roboto,sans-serif;color:#0B57D0;"><span style="font-family:'Material Symbols Outlined';font-size:18px;">refresh</span>Retry</div>
+      </div>
+    </dc-import>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div style="font:500 12px 'Roboto Mono',monospace;color:#5B6470;letter-spacing:.3px;text-align:center;">Settings dialog</div>
+      <div style="width:360px;height:800px;border-radius:38px;overflow:hidden;background:#F7F9FC;border:1px solid #D6DAE1;display:flex;flex-direction:column;box-shadow:0 18px 40px rgba(20,30,50,.14);position:relative;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 22px 6px;">
+          <span style="font:500 13px Roboto;color:#1A1C1E;">9:41</span>
+          <div style="display:flex;gap:7px;"><span style="font-family:'Material Symbols Outlined';font-size:16px;color:#1A1C1E;">signal_cellular_alt</span><span style="font-family:'Material Symbols Outlined';font-size:16px;color:#1A1C1E;">wifi</span><span style="font-family:'Material Symbols Outlined';font-size:16px;color:#1A1C1E;">battery_full</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px 10px 20px;">
+          <div style="font:500 22px Roboto;color:#1A1C1E;">Watchlist</div>
+          <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;"><span style="font-family:'Material Symbols Outlined';font-size:24px;color:#0B57D0;">settings</span></div>
+        </div>
+        <div style="display:flex;background:#FFFFFF;border-bottom:1px solid #E9ECF1;">
+          <div style="flex:1;text-align:center;padding:14px 0 12px;font:500 14px Roboto;color:#0B57D0;box-shadow:inset 0 -3px 0 #0B57D0;">Watchlist</div>
+          <div style="flex:1;text-align:center;padding:14px 0 12px;font:500 14px Roboto;color:#5A5E66;">Search</div>
+        </div>
+        <dc-import name="FilterBar" theme="light" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+        <dc-import name="WatchRow" theme="light" symbol="DOCS" name="Doximity Inc." price="$231.42" tag="LIVE" change="0.62%" dir="up" hint-size="100%,66px"></dc-import>
+        <dc-import name="WatchRow" theme="light" symbol="NVDA" name="NVIDIA Corp." price="$210.88" tag="LIVE" change="0.53%" dir="down" hint-size="100%,66px"></dc-import>
+        <dc-import name="WatchRow" theme="light" symbol="AAPL" name="Apple Inc." price="$329.15" tag="LIVE" change="0.66%" dir="up" hint-size="100%,66px"></dc-import>
+        <div style="position:absolute;inset:0;background:rgba(10,15,25,.42);display:flex;align-items:center;justify-content:center;padding:22px;">
+          <div style="width:100%;max-width:316px;background:#FFFFFF;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,.35);">
+            <div style="font:400 24px Roboto;color:#1A1C1E;">Settings</div>
+            <div style="font:400 14px Roboto;color:#5A5E66;line-height:1.45;">finnhub.io API key (leave empty for demo mode)</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="border:2px solid #0B57D0;border-radius:8px;padding:14px;font:400 15px 'Roboto Mono';color:#1A1C1E;background:#FFFFFF;">d0abc123demoKey<span style="border-left:2px solid #0B57D0;margin-left:1px;">&nbsp;</span></div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:4px;">
+              <div style="padding:10px 16px;border-radius:20px;font:500 14px Roboto;color:#0B57D0;">Cancel</div>
+              <div style="padding:10px 22px;border-radius:20px;background:#0B57D0;font:500 14px Roboto;color:#FFFFFF;">Save</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="font:600 13px 'Roboto Mono',monospace;letter-spacing:2px;color:#7A828C;margin:8px 0 22px;">DARK THEME</div>
+  <div style="display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start;">
+
+    <dc-import name="Phone" theme="dark" tab="watchlist" banner="none" title="Watchlist" label="Watchlist · live · connected" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="dark" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ liveRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="WatchRow" theme="dark" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="LIVE" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="dark" tab="watchlist" banner="connecting" title="Watchlist" label="Reconnecting · CACHED prices" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="dark" query="" sort="price" dir="up" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ cachedRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="WatchRow" theme="dark" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="CACHED" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="dark" tab="watchlist" banner="demo" title="Watchlist" label="Demo mode · simulated live stream" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="dark" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <sc-for list="{{ liveRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="WatchRow" theme="dark" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" tag="LIVE" change="{{ r.change }}" dir="{{ r.dir }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="dark" tab="search" banner="none" title="Search" label="Search results · checkbox to add/remove" hint-size="360px,840px">
+      <dc-import name="SearchBar" theme="dark" query="a" hint-size="100%,68px"></dc-import>
+      <sc-for list="{{ searchRows }}" as="r" hint-placeholder-count="5">
+        <dc-import name="SearchRow" theme="dark" symbol="{{ r.symbol }}" name="{{ r.name }}" price="{{ r.price }}" checked="{{ r.checked }}" hint-size="100%,66px"></dc-import>
+      </sc-for>
+    </dc-import>
+
+    <dc-import name="Phone" theme="dark" tab="watchlist" banner="none" title="Watchlist" label="Empty state" hint-size="360px,840px">
+      <dc-import name="FilterBar" theme="dark" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px;">
+        <span style="font-family:'Material Symbols Outlined';font-size:44px;color:#3A3D42;">bookmark_border</span>
+        <div style="font:500 16px Roboto,sans-serif;color:#9BA1AB;">No results</div>
+        <div style="font:400 13px Roboto,sans-serif;color:#6A707A;text-align:center;">Add instruments from the Search tab.</div>
+      </div>
+    </dc-import>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div style="font:500 12px 'Roboto Mono',monospace;color:#5B6470;letter-spacing:.3px;text-align:center;">Settings dialog</div>
+      <div style="width:360px;height:800px;border-radius:38px;overflow:hidden;background:#121316;border:1px solid #3A3D42;display:flex;flex-direction:column;box-shadow:0 18px 40px rgba(0,0,0,.45);position:relative;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 22px 6px;">
+          <span style="font:500 13px Roboto;color:#E3E2E6;">9:41</span>
+          <div style="display:flex;gap:7px;"><span style="font-family:'Material Symbols Outlined';font-size:16px;color:#E3E2E6;">signal_cellular_alt</span><span style="font-family:'Material Symbols Outlined';font-size:16px;color:#E3E2E6;">wifi</span><span style="font-family:'Material Symbols Outlined';font-size:16px;color:#E3E2E6;">battery_full</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px 10px 20px;">
+          <div style="font:500 22px Roboto;color:#E3E2E6;">Watchlist</div>
+          <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;"><span style="font-family:'Material Symbols Outlined';font-size:24px;color:#A8C7FA;">settings</span></div>
+        </div>
+        <div style="display:flex;background:#1D1F23;border-bottom:1px solid #2A2C30;">
+          <div style="flex:1;text-align:center;padding:14px 0 12px;font:500 14px Roboto;color:#A8C7FA;box-shadow:inset 0 -3px 0 #A8C7FA;">Watchlist</div>
+          <div style="flex:1;text-align:center;padding:14px 0 12px;font:500 14px Roboto;color:#9BA1AB;">Search</div>
+        </div>
+        <dc-import name="FilterBar" theme="dark" query="" sort="symbol" dir="up" hint-size="100%,58px"></dc-import>
+        <dc-import name="WatchRow" theme="dark" symbol="DOCS" name="Doximity Inc." price="$231.42" tag="LIVE" change="0.62%" dir="up" hint-size="100%,66px"></dc-import>
+        <dc-import name="WatchRow" theme="dark" symbol="NVDA" name="NVIDIA Corp." price="$210.88" tag="LIVE" change="0.53%" dir="down" hint-size="100%,66px"></dc-import>
+        <dc-import name="WatchRow" theme="dark" symbol="AAPL" name="Apple Inc." price="$329.15" tag="LIVE" change="0.66%" dir="up" hint-size="100%,66px"></dc-import>
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:22px;">
+          <div style="width:100%;max-width:316px;background:#25272B;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,.5);">
+            <div style="font:400 24px Roboto;color:#E3E2E6;">Settings</div>
+            <div style="font:400 14px Roboto;color:#9BA1AB;line-height:1.45;">finnhub.io API key (leave empty for demo mode)</div>
+            <div style="border:2px solid #A8C7FA;border-radius:8px;padding:14px;font:400 15px 'Roboto Mono';color:#E3E2E6;background:transparent;">d0abc123demoKey<span style="border-left:2px solid #A8C7FA;margin-left:1px;">&nbsp;</span></div>
+            <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:4px;">
+              <div style="padding:10px 16px;border-radius:20px;font:500 14px Roboto;color:#A8C7FA;">Cancel</div>
+              <div style="padding:10px 22px;border-radius:20px;background:#A8C7FA;font:500 14px Roboto;color:#0A305F;">Save</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      liveRows: [
+        { symbol:'DOCS', name:'Doximity Inc.', price:'$231.42', change:'0.62%', dir:'up' },
+        { symbol:'NVDA', name:'NVIDIA Corp.', price:'$210.88', change:'0.53%', dir:'down' },
+        { symbol:'AAPL', name:'Apple Inc.', price:'$329.15', change:'0.66%', dir:'up' },
+        { symbol:'AMZN', name:'Amazon.com Inc.', price:'$253.90', change:'0.43%', dir:'down' },
+        { symbol:'MSFT', name:'Microsoft Corp.', price:'$397.20', change:'0.56%', dir:'up' }
+      ],
+      cachedRows: [
+        { symbol:'DOCS', name:'Doximity Inc.', price:'$230.00', change:'0.31%', dir:'up' },
+        { symbol:'NVDA', name:'NVIDIA Corp.', price:'$212.00', change:'0.12%', dir:'up' },
+        { symbol:'AAPL', name:'Apple Inc.', price:'$327.00', change:'0.18%', dir:'down' },
+        { symbol:'AMZN', name:'Amazon.com Inc.', price:'$255.00', change:'0.24%', dir:'up' },
+        { symbol:'MSFT', name:'Microsoft Corp.', price:'$395.00', change:'0.09%', dir:'down' }
+      ],
+      filteredRows: [
+        { symbol:'AAPL', name:'Apple Inc.', price:'$329.15', change:'0.66%', dir:'up' },
+        { symbol:'AMZN', name:'Amazon.com Inc.', price:'$253.90', change:'0.43%', dir:'down' },
+        { symbol:'NVDA', name:'NVIDIA Corp.', price:'$210.88', change:'0.53%', dir:'down' }
+      ],
+      searchRows: [
+        { symbol:'AAPL', name:'Apple Inc.', price:'$327.10', checked:true },
+        { symbol:'AMZN', name:'Amazon.com Inc.', price:'$255.00', checked:true },
+        { symbol:'AMD', name:'Advanced Micro Devices', price:'$118.44', checked:false },
+        { symbol:'ABNB', name:'Airbnb Inc.', price:'$132.90', checked:false },
+        { symbol:'ADBE', name:'Adobe Inc.', price:'$498.20', checked:false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

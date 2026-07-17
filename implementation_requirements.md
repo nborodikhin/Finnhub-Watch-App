@@ -1,0 +1,113 @@
+## UI
+
+- Two-tab app
+  - Common elements at the top
+    - Banner
+      - Warning banner (demo mode only): "Demo mode, set api key in settings"
+      - Error banner: when API or websocket request is not authorized, "API key error, update in settings"
+      - Notification banner: "Connecting..." shows 2 seconds after live updates are not available (websocket is disconnected) but reconnection is in progress
+      - Notification banner: When disconnected (exponential backoff is not active), banner should handle "Tap to reconnect" and say so
+    - Settings icon at the rightop right corner
+- Watchlist tab, the main one
+  - Filter/Sorting bar (one line)
+    - Filter - Input field
+      - When it has content, it gets a cancel icon to clear the filter
+    - Sorting
+      - Field names: Symbol, Price
+      - The field used for sorting has an indicator arrow, up or down
+      - Clicking on a field uses it for sorting or switches the sorting order
+  - Content area shows list of instruments from the watch list
+    - Price is initially the last known price (marked CACHED)
+    - Live streaming
+      - when live stream update comes, price is updated and marked LIVE
+      - when live stream disconnects, prices are marked CACHED
+    - Items has a tap action to pop up a menu, single item - remove from watch list
+  - Additional states:
+    - Empty state - "No results" text in the center
+    - Loading state - show spinner
+    - Authorization error - propagate to the banner
+- Search tab
+  - Search bar - Input field
+    - When it has content, it gets a cancel icon to clear the query
+  - Content area shows list of instruments resulted from the search
+    - price is from quote api, not live-updated
+    - not marked LIVE/CACHED as not live updated
+    - item has a checkbox to add/remove from the watchlist
+  - When an instrument is added to the watchlist, its price is stored as cached
+  - Additional states:
+    - empty state - "No results" text in the center
+    - query-in-progress - spinner in the center
+    - authorization error - propagate to the banner
+    - API errors, request errors - "API Error: < code >" and have a retry button
+- Settings
+  - Dialog on the screen
+  - Text: "finnhub.io API key (leave empty for demo mode)"
+  - Text entry box - plain text, no masking
+  - Buttons: Save and Cancel
+  - On saving, saves api key and updates data repository with the new key
+
+### Item data
+Items in the lists should have:
+- symbol (e.g. DOCS, APPL)
+- price (e.g. $200.01)
+  - price is prepended by smaller-sized text LIVE or CACHED depending on whether it came from data store or from live data
+- example:
+  - DOCS      LIVE $200.01
+  - AAPL    CACHED $190.50
+
+## Architecture and implementation
+
+- Google-recommended architecture
+- Material3 design
+- Navigation3 with object-based routing
+- Accessibility compliance is mandatory
+- Tests are mandatory
+- Testing
+  - Use Robolectric for UI tests
+  - Use Mockito as needed
+  - Use Turbine to test kotlin flows
+  - Major cases (happy paths) should also have instrumentation tests, at the very least:
+    - Search in demo mode:
+      - search finds one of the predefined instrument
+      - adding works
+      - watchlist displays added instrument as cached with the same price
+    - Watchlist in demo mode - contains subscribed instrument
+    - Opening settings dialog
+- Source code style
+  - Must use ktlint to check and reformat kotlin code using Compose naming/line length rules
+- Every major Compose UI block should have a preview
+- Repository layer:
+  - Data store (local data)
+    - encrypted data store for api key
+    - regular room database for the watchlist (instrument info, last known price)
+      - keep the default destructive migration, mention as a simplification/initial version decision in the README
+      - prices coming from the database are always CACHED
+  - Financial data repository
+    - search for instruments
+      - prices coming from search api are considered CACHED
+    - live data updates (websocket api)
+      - prices coming from live stream are LIVE
+    - supports on-the-go api key update, which should trigger reconnection
+    - backends
+      - real (finnhub.io)
+      - demo (see below)
+      - repository supports hot swapping to demo mode
+    - websocket connection
+      - websocket connection stays active only as long as it is needed
+        - app is in foreground
+        - watchlist is not empty
+        - real backend is active
+      - connection is activated when the main condition is met and:
+        - app goes foreground
+        - app is in foreground, disconnected, and connection is manually requested
+        - app is in foreground, disconnected, and watchlist is changed
+        - app is in foreground, api key is changed
+      - connection is exponentially backed off 1/2/4/8 seconds, then stays disconnected
+      - connection status is exposed, could be requested manually
+
+# Demo mode
+- a dummy network data repository backend
+- contains 5 instruments with fixed base price - DOCS ($230), NVDA ($212), AAPL ($327), AMZN ($255), MSFT ($395)
+- quote prices are fixed
+- live prices updated every 5 seconds, moving randomly (range -1000 ... +1000 relative to the last value), bounded to 90%..110% range of the base price
+
