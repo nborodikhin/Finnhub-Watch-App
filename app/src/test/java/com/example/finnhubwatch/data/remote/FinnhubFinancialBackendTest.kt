@@ -19,6 +19,15 @@ import org.junit.Test
 
 class FinnhubFinancialBackendTest {
     @Test
+    fun websocketUrlUsesHttpSchemeForOkHttpUpgrade() {
+        val url = webSocketUrl("test-key")
+
+        assertEquals("https", url.scheme)
+        assertEquals("ws.finnhub.io", url.host)
+        assertEquals("test-key", url.queryParameter("token"))
+    }
+
+    @Test
     fun quoteForbiddenIsSymbolLevelAndPreservesStatus() =
         runTest {
             val exception =

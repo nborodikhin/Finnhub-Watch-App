@@ -58,7 +58,7 @@ class FinnhubFinancialBackend
         override fun stream(symbols: Set<String>): Flow<BackendEvent> =
             callbackFlow {
                 val key = apiKeyStore.apiKey.first()
-                val url = "wss://ws.finnhub.io?token=$key".toHttpUrl()
+                val url = webSocketUrl(key)
                 val request = Request.Builder().url(url).build()
                 val socket =
                     client.newWebSocket(
@@ -193,3 +193,6 @@ class FinnhubFinancialBackend
             @SerialName("t") val timestamp: Long? = null,
         )
     }
+
+internal fun webSocketUrl(token: String): okhttp3.HttpUrl =
+    "https://ws.finnhub.io".toHttpUrl().newBuilder().addQueryParameter("token", token).build()
